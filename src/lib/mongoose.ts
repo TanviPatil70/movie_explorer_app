@@ -6,17 +6,19 @@ if (!MONGO_URI) {
   throw new Error("Please define MONGO_URL in your environment variables");
 }
 
-declare global {
-  // Extend NodeJS global
-  // eslint-disable-next-line no-var
-  var mongoose: {
-    conn: typeof mongoose | null;
-    promise: Promise<typeof mongoose> | null;
-  };
+interface MongooseCache {
+  conn: typeof mongoose | null;
+  promise: Promise<typeof mongoose> | null;
 }
 
-// Use cached connection or initialize if not exist
-const cached = global.mongoose || { conn: null, promise: null };
+// Extend NodeJS global to have mongoose cache
+declare global {
+  // eslint-disable-next-line no-var
+  var mongoose: MongooseCache;
+}
+
+// Initialize cache if not defined
+const cached: MongooseCache = global.mongoose || { conn: null, promise: null };
 
 async function dbConnect() {
   if (cached.conn) {
