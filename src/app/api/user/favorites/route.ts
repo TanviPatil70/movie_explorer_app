@@ -1,13 +1,13 @@
 import { getServerSession } from "next-auth/next";
 import User from "@/models/User";
-import { authOptions } from "@/app/api/auth/[...nextauth]/route"; // absolute import
-import dbConnect from "@/lib/mongoose"; // Import your mongoose connection helper
+import { authOptions } from "@/app/api/auth/[...nextauth]/route";
+import dbConnect from "@/lib/mongoose";
 
 export async function GET(req: Request) {
-  await dbConnect();  // Connect to MongoDB with Mongoose before queries
+  await dbConnect();
 
   const session = await getServerSession(authOptions);
-  if (!session) {
+  if (!session?.user?.email) {
     return new Response(JSON.stringify({ error: "Unauthorized" }), { status: 401 });
   }
 
@@ -19,7 +19,7 @@ export async function POST(req: Request) {
   await dbConnect();
 
   const session = await getServerSession(authOptions);
-  if (!session) {
+  if (!session?.user?.email) {
     return new Response(JSON.stringify({ error: "Unauthorized" }), { status: 401 });
   }
 
@@ -28,7 +28,10 @@ export async function POST(req: Request) {
     return new Response(JSON.stringify({ error: "Missing movieId" }), { status: 400 });
   }
 
-  const updateResult = await User.updateOne({ email: session.user.email }, { $addToSet: { favorites: movieId } });
+  const updateResult = await User.updateOne(
+    { email: session.user.email },
+    { $addToSet: { favorites: movieId } }
+  );
 
   if (updateResult.modifiedCount === 0) {
     return new Response(JSON.stringify({ error: "No update performed" }), { status: 400 });
@@ -41,7 +44,7 @@ export async function DELETE(req: Request) {
   await dbConnect();
 
   const session = await getServerSession(authOptions);
-  if (!session) {
+  if (!session?.user?.email) {
     return new Response(JSON.stringify({ error: "Unauthorized" }), { status: 401 });
   }
 
@@ -50,7 +53,10 @@ export async function DELETE(req: Request) {
     return new Response(JSON.stringify({ error: "Missing movieId" }), { status: 400 });
   }
 
-  const updateResult = await User.updateOne({ email: session.user.email }, { $pull: { favorites: movieId } });
+  const updateResult = await User.updateOne(
+    { email: session.user.email },
+    { $pull: { favorites: movieId } }
+  );
 
   if (updateResult.modifiedCount === 0) {
     return new Response(JSON.stringify({ error: "No update performed" }), { status: 400 });
