@@ -7,7 +7,6 @@ if (!MONGO_URI) {
   throw new Error("Please define MONGO_URL in your environment variables");
 }
 
-// Declare global mongoose type for TypeScript
 declare global {
   // eslint-disable-next-line no-var
   var mongoose: {
@@ -16,11 +15,7 @@ declare global {
   };
 }
 
-let cached = global.mongoose;
-
-if (!cached) {
-  cached = global.mongoose = { conn: null, promise: null };
-}
+let cached = global.mongoose || { conn: null, promise: null };
 
 async function dbConnect() {
   if (cached.conn) {
@@ -31,10 +26,12 @@ async function dbConnect() {
       useNewUrlParser: true,
       useUnifiedTopology: true,
       tls: true,
-    }).then(mongoose => mongoose);
+    }) as Promise<typeof mongoose>;
   }
   cached.conn = await cached.promise;
   return cached.conn;
 }
+
+global.mongoose = cached;
 
 export default dbConnect;
