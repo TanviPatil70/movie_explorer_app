@@ -2,6 +2,15 @@ import { NextRequest, NextResponse } from "next/server";
 import clientPromise from "@/lib/mongodb";
 import bcrypt from "bcryptjs";
 
+function isErrorWithMessage(error: unknown): error is { message: string } {
+  return (
+    typeof error === "object" &&
+    error !== null &&
+    "message" in error &&
+    typeof (error as any).message === "string"
+  );
+}
+
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
@@ -29,11 +38,10 @@ export async function POST(request: NextRequest) {
   } catch (error: unknown) {
     console.error("Signup error:", error);
 
-    const errorMessage =
-      error && typeof error === "object" && "message" in error && typeof (error as any).message === "string"
-        ? (error as any).message
-        : "Internal Server Error";
-    
+    const errorMessage = isErrorWithMessage(error)
+      ? error.message
+      : "Internal Server Error";
+
     return NextResponse.json({ error: errorMessage }, { status: 500 });
   }
 }
