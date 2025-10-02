@@ -2,7 +2,6 @@ import { NextRequest, NextResponse } from "next/server";
 import clientPromise from "@/lib/mongodb";
 import bcrypt from "bcryptjs";
 
-
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
@@ -27,8 +26,14 @@ export async function POST(request: NextRequest) {
     console.log("Insert Result:", result);
 
     return NextResponse.json({ message: "User created", userId: result.insertedId });
-  } catch (error) {
+  } catch (error: unknown) {
     console.error("Signup error:", error);
-    return NextResponse.json({ error: error.message || "Internal Server Error" }, { status: 500 });
+
+    const errorMessage =
+      error && typeof error === "object" && "message" in error && typeof (error as any).message === "string"
+        ? (error as any).message
+        : "Internal Server Error";
+    
+    return NextResponse.json({ error: errorMessage }, { status: 500 });
   }
 }
