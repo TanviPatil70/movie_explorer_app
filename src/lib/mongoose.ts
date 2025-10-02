@@ -3,7 +3,7 @@ import mongoose from "mongoose";
 const MONGO_URI = process.env.MONGO_URL || process.env.MONGODB_URI;
 
 if (!MONGO_URI) {
-  throw new Error("Please define MONGO_URL in your environment variables");
+  throw new Error("Please define MONGO_URL or MONGODB_URI environment variable");
 }
 
 interface MongooseCache {
@@ -11,21 +11,20 @@ interface MongooseCache {
   promise: Promise<typeof mongoose> | null;
 }
 
-// Extend NodeJS global to have mongoose cache
 declare global {
   // eslint-disable-next-line no-var
   var mongoose: MongooseCache;
 }
 
-// Initialize cache if not defined
 const cached: MongooseCache = global.mongoose || { conn: null, promise: null };
 
 async function dbConnect() {
   if (cached.conn) {
     return cached.conn;
   }
+  // Type assertion here ensures MONGO_URI is string
   if (!cached.promise) {
-    cached.promise = mongoose.connect(MONGO_URI, {
+    cached.promise = mongoose.connect(MONGO_URI as string, {
       useNewUrlParser: true,
       useUnifiedTopology: true,
       tls: true,
