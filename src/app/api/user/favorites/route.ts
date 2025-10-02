@@ -1,6 +1,6 @@
 import { getServerSession } from "next-auth/next";
 import User from "@/models/User";
-import { authOptions } from "../../auth/[...nextauth]/route";
+import { authOptions } from "@/app/api/auth/[...nextauth]/route"; // absolute import
 import dbConnect from "@/lib/mongoose"; // Import your mongoose connection helper
 
 export async function GET(req: Request) {

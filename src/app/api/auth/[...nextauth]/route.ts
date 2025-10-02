@@ -1,47 +1,49 @@
-import { NextResponse } from "next/server";
-import bcrypt from "bcryptjs";
+import NextAuth from "next-auth";
+import CredentialsProvider from "next-auth/providers/credentials";
 import clientPromise from "@/lib/mongodb";
+import bcrypt from "bcryptjs";
 
-export async function POST(request: Request) {
-  try {
-    const body = await request.json();
-    const { email, password, name } = body;
+export const authOptions = {
+  providers: [
+    CredentialsProvider({
+      name: "Credentials",
+      credentials: {
+        email: { label: "Email", type: "email" },
+        password: { label: "Password", type: "password" },
+      },
+      async authorize(credentials) {
+        const client = await clientPromise;
+        const db = client.db("moviedb");
 
-    if (!email || !password || !name) {
-      return NextResponse.json(
-        { error: "Missing required fields" },
-        { status: 400 }
-      );
-    }
+        const user = await db.collection("users").findOne({ email: credentials?.email });
+        if (!user) {
+          throw new Error("No user found with this email");
+        }
 
-    const client = await clientPromise;
-    const db = client.db();
+        const isValid = await bcrypt.compare(credentials!.password, user.passwordHash);
+        if (!isValid) {
+          throw new Error("Invalid credentials");
+        }
 
-    const existingUser = await db.collection("users").findOne({ email });
-    if (existingUser) {
-      return NextResponse.json({ error: "User already exists" }, { status: 409 });
-    }
+        return { id: user._id.toString(), email: user.email, name: user.name };
+      },
+    }),
+  ],
 
-    const hashedPassword = await bcrypt.hash(password, 10);
+  session: {
+    strategy: "jwt",
+  },
 
-    const newUser = {
-      email,
-      name,
-      passwordHash: hashedPassword,
-      createdAt: new Date(),
-    };
+  jwt: {
+    secret: process.env.JWT_SECRET,
+  },
 
-    await db.collection("users").insertOne(newUser);
+  pages: {
+    signIn: "/auth/signin",
+    error: "/auth/error",
+  },
+};
 
-    return NextResponse.json({ message: "User created successfully" }, { status: 201 });
-  } catch (error: unknown) {
-    console.error("Signup error:", error);
+const handler = NextAuth(authOptions);
 
-    const errorMessage =
-      error && typeof error === "object" && "message" in error && typeof (error as any).message === "string"
-        ? (error as any).message
-        : "Internal Server Error";
-
-    return NextResponse.json({ error: errorMessage }, { status: 500 });
-  }
-}
+export { handler as GET, handler as POST };
