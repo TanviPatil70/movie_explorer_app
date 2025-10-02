@@ -1,6 +1,6 @@
 "use client";
+import React, { useState } from "react";
 import { signIn } from "next-auth/react";
-import { useState } from "react";
 import { useRouter } from "next/navigation";
 
 export default function SignIn() {
@@ -9,7 +9,7 @@ export default function SignIn() {
   const [error, setError] = useState("");
   const router = useRouter();
 
-  const onSubmit = async (e) => {
+  const onSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setError("");
     const res = await signIn("credentials", {
@@ -31,14 +31,18 @@ export default function SignIn() {
         <div className="mb-3 flex items-center gap-3">
           <span className="inline-flex items-center justify-center w-12 h-12 rounded-full bg-indigo-100 dark:bg-indigo-900 shadow">
             <svg width="26" height="26" viewBox="0 0 24 24" fill="none">
-              <path d="M12 2L15 8H9L12 2Z" fill="#6366f1"/>
-              <rect x="6" y="10" width="12" height="10" rx="2" fill="#6366f1"/>
+              <path d="M12 2L15 8H9L12 2Z" fill="#6366f1" />
+              <rect x="6" y="10" width="12" height="10" rx="2" fill="#6366f1" />
             </svg>
           </span>
-          <span className="text-2xl font-extrabold text-indigo-700 dark:text-indigo-200 tracking-tight select-none">CineFlix</span>
+          <span className="text-2xl font-extrabold text-indigo-700 dark:text-indigo-200 tracking-tight select-none">
+            CineFlix
+          </span>
         </div>
         {/* Title */}
-        <h1 className="text-3xl font-extrabold mb-2 text-gray-900 dark:text-white text-center tracking-tight">Sign In</h1>
+        <h1 className="text-3xl font-extrabold mb-2 text-gray-900 dark:text-white text-center tracking-tight">
+          Sign In
+        </h1>
         <p className="mb-6 text-gray-500 dark:text-gray-400 text-sm text-center">
           Welcome back! Please login to continue.
         </p>
