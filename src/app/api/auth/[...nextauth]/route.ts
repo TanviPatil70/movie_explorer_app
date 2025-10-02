@@ -12,6 +12,10 @@ export const authOptions = {
         password: { label: "Password", type: "password" },
       },
       async authorize(credentials) {
+        if (!credentials?.email || !credentials?.password) {
+          throw new Error("Email and password are required");
+        }
+
         const client = await clientPromise;
         const db = client.db();
 
@@ -30,7 +34,7 @@ export const authOptions = {
         }
 
         return { id: user._id.toString(), email: user.email, name: user.name };
-      }
+      },
     }),
   ],
   pages: {
