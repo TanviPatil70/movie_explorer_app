@@ -1,4 +1,3 @@
-// lib/mongoose.ts
 import mongoose from "mongoose";
 
 const MONGO_URI = process.env.MONGO_URL || process.env.MONGODB_URI;
@@ -8,6 +7,7 @@ if (!MONGO_URI) {
 }
 
 declare global {
+  // Extend the global type to include mongoose cache
   // eslint-disable-next-line no-var
   var mongoose: {
     conn: typeof mongoose | null;
@@ -15,7 +15,7 @@ declare global {
   };
 }
 
-// Use 'const' instead of 'let' since 'cached' is never reassigned
+// Use the existing cache or initialize
 const cached = global.mongoose || { conn: null, promise: null };
 
 async function dbConnect() {
@@ -27,7 +27,7 @@ async function dbConnect() {
       useNewUrlParser: true,
       useUnifiedTopology: true,
       tls: true,
-    }) as Promise<typeof mongoose>;
+    });
   }
   cached.conn = await cached.promise;
   return cached.conn;
