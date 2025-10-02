@@ -1,36 +1,93 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+Movie Explorer App
+A modern, feature-rich movie browsing web app built with Next.js 14, TypeScript, Tailwind CSS, and TMDB API. The app enables users to browse, search, view detailed movie info, and manage favorites with a sleek, responsive design.
 
-## Getting Started
+Features
+User authentication: Sign up and login with NextAuth.js, securing access for main features.
 
-First, run the development server:
+Movie browsing: Browse popular movies with poster, title, and ratings, with infinite scroll or pagination.
 
-```bash
+Dynamic search: Search movies in real-time, fetching results from TMDB API.
+
+Detailed pages: View comprehensive movie information, including description, release date, ratings, and more.
+
+Favorites: Add or remove movies from favorites stored in local storage; view favorite movies on a dedicated page.
+
+Responsive UI: Fully responsive and mobile-friendly with dark mode support.
+
+Optimized images: Next.js next/image for fast, optimized loading.
+
+Loading skeletons: Smooth, visually appealing loading states.
+
+How to Run Locally
+Prerequisites
+Node.js (>=14)
+
+TMDB API key (sign up at https://www.themoviedb.org/)
+
+Steps
+Clone the repo:
+
+bash
+git clone https://github.com/TanviPatil70/movie-explorer-app.git
+cd movie-explorer-app
+Install dependencies:
+
+bash
+npm install
+# or
+yarn install
+Set environment variables:
+
+Create a .env.local file in the root directory:
+
+text
+NEXT_PUBLIC_TMDB_API_KEY=your_tmdb_api_key
+NEXTAUTH_SECRET=your_nextauth_secret
+Start local server:
+
+bash
 npm run dev
 # or
 yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+Open http://localhost:3000 in your browser to see the app.
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Deployment
+The app is live on Vercel:
+https://movie-explorer-app.vercel.app
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+Folder Structure Overview
+src/app: Next.js pages and routes
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+src/components: Reusable UI components
 
-## Learn More
+src/lib: API handling and utilities
 
-To learn more about Next.js, take a look at the following resources:
+src/styles: global styles
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+pages/api: API routes for authentication, data fetching
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+Tech Stack
+Next.js 14 with App Router
 
-## Deploy on Vercel
+TypeScript
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+Tailwind CSS
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+NextAuth.js for authentication
+
+TMDB API for movie data
+
+Next.js next/image optimization
+
+How to Contribute
+Fork the repo
+
+Create a feature branch
+
+Commit and push your changes
+
+Submit a pull request
+
+Contact
+For queries or feedback, submit an issue or contact via GitHub.
+
