@@ -1,46 +1,47 @@
-import NextAuth from "next-auth";
-import CredentialsProvider from "next-auth/providers/credentials";
+import { NextResponse } from "next/server";
 import bcrypt from "bcryptjs";
-import clientPromise from "@/lib/mongodb"; // adjust if needed
+import clientPromise from "@/lib/mongodb";
 
-export const authOptions = {
-  providers: [
-    CredentialsProvider({
-      name: "Credentials",
-      credentials: {
-        email: { label: "Email", type: "email", placeholder: "email@example.com" },
-        password: { label: "Password", type: "password" },
-      },
-      async authorize(credentials) {
-        if (!credentials?.email || !credentials?.password) {
-          throw new Error("Email and password are required");
-        }
+export async function POST(request: Request) {
+  try {
+    const body = await request.json();
+    const { email, password, name } = body;
 
-        const client = await clientPromise;
-        const db = client.db();
+    if (!email || !password || !name) {
+      return NextResponse.json(
+        { error: "Missing required fields" },
+        { status: 400 }
+      );
+    }
 
-        const user = await db.collection("users").findOne({ email: credentials.email });
-        console.log("User from DB:", user);
+    const client = await clientPromise;
+    const db = client.db();
 
-        if (!user) {
-          return null;
-        }
+    const existingUser = await db.collection("users").findOne({ email });
+    if (existingUser) {
+      return NextResponse.json({ error: "User already exists" }, { status: 409 });
+    }
 
-        const isValid = await bcrypt.compare(credentials.password, user.passwordHash);
-        console.log("Password valid:", isValid);
+    const hashedPassword = await bcrypt.hash(password, 10);
 
-        if (!isValid) {
-          return null;
-        }
+    const newUser = {
+      email,
+      name,
+      passwordHash: hashedPassword,
+      createdAt: new Date(),
+    };
 
-        return { id: user._id.toString(), email: user.email, name: user.name };
-      },
-    }),
-  ],
-  pages: {
-    signIn: "/auth/signin",
-  },
-};
+    await db.collection("users").insertOne(newUser);
 
-const handler = NextAuth(authOptions);
-export { handler as GET, handler as POST };
+    return NextResponse.json({ message: "User created successfully" }, { status: 201 });
+  } catch (error: unknown) {
+    console.error("Signup error:", error);
+
+    const errorMessage =
+      error && typeof error === "object" && "message" in error && typeof (error as any).message === "string"
+        ? (error as any).message
+        : "Internal Server Error";
+
+    return NextResponse.json({ error: errorMessage }, { status: 500 });
+  }
+}
