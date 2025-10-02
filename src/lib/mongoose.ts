@@ -15,7 +15,8 @@ declare global {
   };
 }
 
-let cached = global.mongoose || { conn: null, promise: null };
+// Use 'const' instead of 'let' since 'cached' is never reassigned
+const cached = global.mongoose || { conn: null, promise: null };
 
 async function dbConnect() {
   if (cached.conn) {
