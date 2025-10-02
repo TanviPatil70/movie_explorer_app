@@ -13,7 +13,7 @@ interface MongooseCache {
   promise: Promise<typeof mongoose> | null;
 }
 
-// Fix for Next.js hot reload in dev
+// Prevent Next.js hot reload issues in dev
 declare global {
   // eslint-disable-next-line no-var
   var mongooseCache: MongooseCache | undefined;
@@ -25,9 +25,9 @@ async function dbConnect() {
   if (cached.conn) return cached.conn;
 
   if (!cached.promise) {
-    cached.promise = mongoose.connect(MONGO_URI, {
-      // useNewUrlParser and useUnifiedTopology are no longer required in Mongoose v6+
-      tls: true, // keep if required by your Atlas cluster
+    // ✅ Add "as string" so TS knows it's not undefined
+    cached.promise = mongoose.connect(MONGO_URI as string, {
+      tls: true, // keep if your Atlas cluster requires it
     });
   }
 
