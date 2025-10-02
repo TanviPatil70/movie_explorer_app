@@ -7,7 +7,7 @@ if (!MONGO_URI) {
 }
 
 declare global {
-  // Extend the global type to include mongoose cache
+  // Extend NodeJS global
   // eslint-disable-next-line no-var
   var mongoose: {
     conn: typeof mongoose | null;
@@ -15,7 +15,7 @@ declare global {
   };
 }
 
-// Use the existing cache or initialize
+// Use cached connection or initialize if not exist
 const cached = global.mongoose || { conn: null, promise: null };
 
 async function dbConnect() {
