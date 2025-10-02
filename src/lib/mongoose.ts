@@ -7,6 +7,15 @@ if (!MONGO_URI) {
   throw new Error("Please define MONGO_URL in your environment variables");
 }
 
+// Declare global mongoose type for TypeScript
+declare global {
+  // eslint-disable-next-line no-var
+  var mongoose: {
+    conn: typeof mongoose | null;
+    promise: Promise<typeof mongoose> | null;
+  };
+}
+
 let cached = global.mongoose;
 
 if (!cached) {
