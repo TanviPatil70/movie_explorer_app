@@ -1,31 +1,33 @@
 import { MongoClient, MongoClientOptions } from "mongodb";
 
-const uri: string = process.env.MONGODB_URI || ""; // Or your connection string env variable
+const uri = process.env.MONGO_URL || process.env.MONGODB_URI;
+
+if (!uri) {
+  throw new Error(
+    "❌ MongoDB connection string not found. Please define MONGO_URL or MONGODB_URI in your environment variables."
+  );
+}
+
 const options: MongoClientOptions = {
-  tls: true,
+  tls: true, // keep this only if your MongoDB Atlas requires TLS (usually yes)
 };
 
 let client: MongoClient;
 let clientPromise: Promise<MongoClient>;
 
-if (!uri) {
-  throw new Error("Please add your Mongo URI to .env.local");
-}
-
+// Use cached connection in development to avoid too many open handles
 declare global {
   // eslint-disable-next-line no-var
-  var _mongoClientPromise: Promise<MongoClient>;
+  var _mongoClientPromise: Promise<MongoClient> | undefined;
 }
 
 if (process.env.NODE_ENV === "development") {
-  // In development, use global variable to preserve cache across module reloads
   if (!global._mongoClientPromise) {
     client = new MongoClient(uri, options);
     global._mongoClientPromise = client.connect();
   }
   clientPromise = global._mongoClientPromise;
 } else {
-  // In production, create a new client
   client = new MongoClient(uri, options);
   clientPromise = client.connect();
 }
